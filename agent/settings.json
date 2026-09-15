@@ -10,7 +10,13 @@
     "npm:pi-web-access",
     "npm:@juicesharp/rpiv-ask-user-question",
     "npm:bigpowers",
-    "npm:@bacnh85/pi-rtk"
+    "npm:@bacnh85/pi-rtk",
+    "npm:pi-btw",
+    "npm:@tintinweb/pi-tasks",
+    "npm:pi-background-tasks@latest",
+    "npm:context-mode",
+    "npm:@tintinweb/pi-subagents",
+    "npm:pi-powerline-footer"
   ],
   "extensions": [
     "-extensions/web-search/index.ts",
