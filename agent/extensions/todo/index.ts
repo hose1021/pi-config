@@ -5,7 +5,8 @@
  *
  * Registers:
  * - the `todo` tool, so the agent manages the list;
- * - the `/todos` command, so the user views the list.
+ * - the `/todos` command, so the user views the list;
+ * - a pinned panel under the editor, while work stays open.
  *
  * State lives in tool result details. A branch therefore reconstructs the
  * correct list for its point in history. No state file exists.
@@ -28,6 +29,31 @@ interface TodoDetails {
 	nextId: number;
 	error?: string;
 }
+
+const WIDGET_KEY = "todo";
+/** Rows shown in the pinned panel before the rest is summarized. */
+const WIDGET_ROW_CAP = 5;
+
+/**
+ * Lines for the pinned panel. Returns undefined while nothing is open, so a
+ * finished list leaves no residue under the editor.
+ */
+const widgetLines = (theme: Theme, todos: Todo[]): string[] | undefined => {
+	const open = todos.filter((t) => !t.done).length;
+	if (open === 0) return undefined;
+
+	const done = todos.length - open;
+	const lines = [theme.fg("accent", `Todos ${done}/${todos.length}`)];
+	for (const todo of todos.slice(0, WIDGET_ROW_CAP)) {
+		const check = todo.done ? theme.fg("success", "✓") : theme.fg("dim", "○");
+		const text = todo.done ? theme.fg("dim", todo.text) : theme.fg("text", todo.text);
+		lines.push(`  ${check} ${text}`);
+	}
+	if (todos.length > WIDGET_ROW_CAP) {
+		lines.push(theme.fg("dim", `  … ${todos.length - WIDGET_ROW_CAP} more`));
+	}
+	return lines;
+};
 
 const TodoParams = Type.Object({
 	action: StringEnum(["list", "add", "toggle", "clear"] as const),
@@ -129,9 +155,29 @@ export default function (pi: ExtensionAPI) {
 		}
 	};
 
+	const refreshWidget = (ctx: ExtensionContext) => {
+		if (!ctx.hasUI) return;
+		ctx.ui.setWidget(WIDGET_KEY, widgetLines(ctx.ui.theme, todos), { placement: "belowEditor" });
+	};
+
 	// Reconstruct state on session events
-	pi.on("session_start", async (_event, ctx) => reconstructState(ctx));
-	pi.on("session_tree", async (_event, ctx) => reconstructState(ctx));
+	const sync = (ctx: ExtensionContext) => {
+		reconstructState(ctx);
+		refreshWidget(ctx);
+	};
+	pi.on("session_start", async (_event, ctx) => sync(ctx));
+	pi.on("session_tree", async (_event, ctx) => sync(ctx));
+
+	// Mirror every todo call into the pinned panel. The details hold the state
+	// the tool committed, so a failed call leaves the panel correct.
+	pi.on("tool_result", async (event, ctx) => {
+		if (event.toolName !== "todo") return;
+		const details = event.details as TodoDetails | undefined;
+		if (!details) return;
+		todos = details.todos;
+		nextId = details.nextId;
+		refreshWidget(ctx);
+	});
 
 	// Register the todo tool for the LLM
 	pi.registerTool({
