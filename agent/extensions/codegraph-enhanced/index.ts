@@ -896,15 +896,41 @@ function applyLoader(pi: ExtensionAPI, active: boolean): void {
 }
 
 /**
+ * True when `startPath` or an ancestor holds an initialized CodeGraph index.
+ *
+ * This mirrors the CLI's own resolution rule: the nearest ancestor whose
+ * `.codegraph` holds `codegraph.db`. The database file matters, because
+ * `~/.codegraph` is the CLI's global state directory (daemons, telemetry) and
+ * holds no index. Matching the directory alone would report every folder under
+ * the home directory as indexed.
+ *
+ * This runs before the async status call can answer. That call stays
+ * authoritative: a stale index gives true here, then the resolved phase
+ * corrects the loader.
+ */
+export function hasCodeGraphIndex(startPath: string): boolean {
+  let dir = path.resolve(startPath);
+  for (;;) {
+    if (existsSync(path.join(dir, ".codegraph", "codegraph.db"))) return true;
+    const parent = path.dirname(dir);
+    if (parent === dir) return false;
+    dir = parent;
+  }
+}
+
+/**
  * Runs one index refresh and publishes every phase it passes through. Used by
  * the startup gate and by `/codegraph init` / `/codegraph sync`; the only
  * differences are `allowInit` and the notification set. Fire-and-forget: index
  * maintenance must never block a turn.
  *
- * Tool availability follows the same phases, so the loader reflects the resolved
- * index state instead of a second, separate directory check. A folder without an
- * index pays zero codegraph tokens; the auto-index flag predicts that an index
- * is about to exist, so the loader stays available there too.
+ * LOCAL PATCH: the loader no longer waits for the resolved phase. Upstream kept
+ * tool availability in step with the async status call, but that call is
+ * fire-and-forget, so the first turn raced it and its tool list never held
+ * `codegraph_load`. The before_agent_start guidance looks for that name, so it
+ * never fired. A synchronous directory prediction closes the gap; the resolved
+ * phase still overrides it, and a folder without an index still pays zero
+ * codegraph tokens.
  */
 function startIndexRefresh(
   pi: ExtensionAPI,
@@ -917,7 +943,8 @@ function startIndexRefresh(
     publish(ctx, next);
     applyLoader(pi, next.kind === "ready" || allowInit);
   };
-  apply({ kind: "checking" });
+  publish(ctx, { kind: "checking" });
+  applyLoader(pi, allowInit || hasCodeGraphIndex(projectPath));
   refreshIndexOnce(projectPath, allowInit, defaultCodeGraphRunner, apply)
     .then((result) => {
       apply(result);

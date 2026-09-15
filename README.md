@@ -15,7 +15,8 @@ Version: see `VERSION`.
 - `agent/skills/` — skill instruction files.
 - `agent/themes/` — theme JSON files.
 - `agent/npm/` — install root for npm pi packages.
-- `agent/append_system.md` — system prompt appendix.
+- `agent/APPEND_SYSTEM.md` — system prompt appendix. pi reads this exact
+  uppercase name; a lowercase file is ignored on a case-sensitive filesystem.
 - `agent/pretty-tui.json` — config for the `pi-pretty-tui` package.
 - `AGENTS.md` — rules for agents that work in this repository.
 - `.codegraph/` — CodeGraph index. Machine-local, gitignored.
