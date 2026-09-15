@@ -4,18 +4,15 @@ auth.json
 .env
 .env.*
 
-# Pi runtime state (created when this repo is used as ~/.pi/agent)
-# agent/ holds live local state: auth.json, sessions/, bin/, caches.
-# Publishable pieces live at the top level (extensions/, themes/, skills/).
-/agent/
-.pi/
-sessions/
-git/
-mcp-cache.json
-mcp-npx-cache.json
-run-history.jsonl
-session-manager-config.toml
-pi-crash.log
+# Pi runtime state (live local state under agent/: auth, sessions, bin, caches)
+/agent/auth.json
+/agent/sessions
+/agent/models-store.json
+/agent/pi-cpa.json
+/agent/bin
+/agent/web-search-cache
+agent/trust.json
+agent/cache/pi-ollama-cloud/cache.json
 
 # Dependencies / generated environments
 node_modules/

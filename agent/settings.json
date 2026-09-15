@@ -1,0 +1,42 @@
+{
+  "lastChangelogVersion": "0.85.1",
+  "theme": "rainbow-prism",
+  "defaultProvider": "opencode-go",
+  "defaultModel": "deepseek-v4.1-flash",
+  "packages": [
+    "npm:@dietrichgebert/ponytail@4.10.0",
+    "npm:speak-like-you-eat@1.1.0",
+    "npm:pi-pretty-tui",
+    "npm:pi-web-access",
+    "npm:@juicesharp/rpiv-ask-user-question",
+    "npm:bigpowers",
+    "npm:@bacnh85/pi-rtk"
+  ],
+  "extensions": [
+    "-extensions/web-search/index.ts",
+    "-extensions/ask-user-question.ts"
+  ],
+  "steeringMode": "one-at-a-time",
+  "followUpMode": "one-at-a-time",
+  "collapseChangelog": true,
+  "treeFilterMode": "no-tools",
+  "compaction": {
+    "enabled": false
+  },
+  "outputPad": 1,
+  "showCacheMissNotices": true,
+  "defaultProjectTrust": "ask",
+  "terminal": {
+    "showImages": true,
+    "showTerminalProgress": false
+  },
+  "editorPaddingX": 1,
+  "images": {
+    "autoResize": true
+  },
+  "fullscreenCopyOnSelect": true,
+  "fullscreenScrollbar": "auto",
+  "fullscreenExitOutput": "resume-hint",
+  "transport": "auto",
+  "httpIdleTimeoutMs": 60000
+}
