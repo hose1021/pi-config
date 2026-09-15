@@ -2,6 +2,17 @@
 
 ## [Unreleased]
 
+## [0.3.0] - 2026-09-15
+
+### Added
+
+- `todo` extension: pinned panel under the editor. It mirrors the todo
+  list on each tool result, shows the done/total count with the first five
+  rows, and hides when nothing is open.
+- `settings.json`: six npm packages: `pi-btw`, `@tintinweb/pi-tasks`,
+  `pi-background-tasks`, `context-mode`, `@tintinweb/pi-subagents`,
+  `pi-powerline-footer`.
+
 ## [0.2.0] - 2026-09-15
 
 ### Added
