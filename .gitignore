@@ -5,6 +5,9 @@ auth.json
 .env.*
 
 # Pi runtime state (created when this repo is used as ~/.pi/agent)
+# agent/ holds live local state: auth.json, sessions/, bin/, caches.
+# Publishable pieces live at the top level (extensions/, themes/, skills/).
+/agent/
 .pi/
 sessions/
 git/
